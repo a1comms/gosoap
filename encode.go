@@ -44,7 +44,7 @@ func (c process) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 		tokens.endHeader(c.Client.HeaderName)
 	}
 
-	err := tokens.startBody(c.Request.Method, namespace)
+	err := tokens.startBody(c.Request.Method)
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func (tokens *tokenData) endHeader(m string) {
 	tokens.data = append(tokens.data, r, h)
 }
 
-func (tokens *tokenData) startBody(m, n string) error {
+func (tokens *tokenData) startBody(m string) error {
 	b := xml.StartElement{
 		Name: xml.Name{
 			Space: "",
@@ -207,17 +207,14 @@ func (tokens *tokenData) startBody(m, n string) error {
 		},
 	}
 
-	if m == "" || n == "" {
+	if m == "" {
 		return fmt.Errorf("method or namespace is empty")
 	}
 
 	r := xml.StartElement{
 		Name: xml.Name{
 			Space: "",
-			Local: m,
-		},
-		Attr: []xml.Attr{
-			{Name: xml.Name{Space: "", Local: "xmlns"}, Value: n},
+			Local: "ser:" + m,
 		},
 	}
 
