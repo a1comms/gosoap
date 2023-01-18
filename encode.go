@@ -192,7 +192,7 @@ func (tokens *tokenData) endHeader(m string) {
 	r := xml.EndElement{
 		Name: xml.Name{
 			Space: "",
-			Local: m,
+			Local: "ser:" + m,
 		},
 	}
 
@@ -235,7 +235,7 @@ func (tokens *tokenData) endBody(m string) {
 	r := xml.EndElement{
 		Name: xml.Name{
 			Space: "",
-			Local: m,
+			Local: "ser:" + m,
 		},
 	}
 
