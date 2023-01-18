@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	soapPrefix = "soap"
+	soapPrefix                            = "soap"
 	customEnvelopeAttrs map[string]string = nil
 )
 
@@ -37,9 +37,9 @@ func (c process) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 		}
 	}
 
-	tokens.startEnvelope()
+	tokens.startEnvelope(namespace)
 	if c.Client.HeaderParams != nil {
-		tokens.startHeader(c.Client.HeaderName, namespace)
+		tokens.startHeader(c.Client.HeaderName)
 		tokens.recursiveEncode(c.Client.HeaderParams)
 		tokens.endHeader(c.Client.HeaderName)
 	}
@@ -112,7 +112,7 @@ func (tokens *tokenData) recursiveEncode(hm interface{}) {
 	}
 }
 
-func (tokens *tokenData) startEnvelope() {
+func (tokens *tokenData) startEnvelope(namespace string) {
 	e := xml.StartElement{
 		Name: xml.Name{
 			Space: "",
@@ -125,12 +125,13 @@ func (tokens *tokenData) startEnvelope() {
 			{Name: xml.Name{Space: "", Local: "xmlns:xsi"}, Value: "http://www.w3.org/2001/XMLSchema-instance"},
 			{Name: xml.Name{Space: "", Local: "xmlns:xsd"}, Value: "http://www.w3.org/2001/XMLSchema"},
 			{Name: xml.Name{Space: "", Local: "xmlns:soap"}, Value: "http://schemas.xmlsoap.org/soap/envelope/"},
+			{Name: xml.Name{Space: "", Local: "xmlns:ser"}, Value: namespace},
 		}
 	} else {
 		e.Attr = make([]xml.Attr, 0)
 		for local, value := range customEnvelopeAttrs {
 			e.Attr = append(e.Attr, xml.Attr{
-				Name: xml.Name{Space: "", Local: local},
+				Name:  xml.Name{Space: "", Local: local},
 				Value: value,
 			})
 		}
@@ -150,7 +151,7 @@ func (tokens *tokenData) endEnvelope() {
 	tokens.data = append(tokens.data, e)
 }
 
-func (tokens *tokenData) startHeader(m, n string) {
+func (tokens *tokenData) startHeader(m string) {
 	h := xml.StartElement{
 		Name: xml.Name{
 			Space: "",
@@ -158,7 +159,7 @@ func (tokens *tokenData) startHeader(m, n string) {
 		},
 	}
 
-	if m == "" || n == "" {
+	if m == "" {
 		tokens.data = append(tokens.data, h)
 		return
 	}
@@ -166,10 +167,7 @@ func (tokens *tokenData) startHeader(m, n string) {
 	r := xml.StartElement{
 		Name: xml.Name{
 			Space: "",
-			Local: m,
-		},
-		Attr: []xml.Attr{
-			{Name: xml.Name{Space: "", Local: "xmlns"}, Value: n},
+			Local: "ser:" + m,
 		},
 	}
 
